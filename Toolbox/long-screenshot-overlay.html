@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="长截图">长截图</title>
+  <script src="i18n.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      cursor: crosshair;
+      background: transparent;
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.15);
+    }
+    .selection {
+      position: absolute;
+      border: 2px solid #3b82f6;
+      background: transparent;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+    .size-label {
+      position: absolute;
+      bottom: -28px;
+      left: 0;
+      background: #3b82f6;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: monospace;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .hint {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      pointer-events: none;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .status {
+      position: absolute;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 185, 129, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      pointer-events: none;
+      display: none;
+    }
+    .toolbar {
+      position: absolute;
+      display: none;
+      gap: 8px;
+      z-index: 1000;
+    }
+    .toolbar button {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-start {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-stop {
+      background: #10b981;
+      color: white;
+    }
+    .btn-cancel {
+      background: #6b7280;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay"></div>
+  <div class="hint" id="hint" data-i18n="拖拽选择滚动区域 · Enter 开始捕获 · Esc 取消">拖拽选择滚动区域 · Enter 开始捕获 · Esc 取消</div>
+  <div class="status" id="status" data-i18n="正在捕获... 滚动目标窗口，按 F9 完成 / F10 取消">正在捕获... 滚动目标窗口，按 F9 完成 / F10 取消</div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    let startX = 0, startY = 0;
+    let isSelecting = false;
+    let selection = null;
+    let sizeLabel = null;
+    let toolbar = null;
+    let isCapturing = false;
+    let region = null;
+
+    const overlay = document.getElementById('overlay');
+    const hint = document.getElementById('hint');
+    const status = document.getElementById('status');
+
+    overlay.addEventListener('mousedown', (e) => {
+      if (isCapturing) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      isSelecting = true;
+
+      if (selection) selection.remove();
+      if (toolbar) toolbar.remove();
+
+      selection = document.createElement('div');
+      selection.className = 'selection';
+      selection.style.left = startX + 'px';
+      selection.style.top = startY + 'px';
+      selection.style.width = '0px';
+      selection.style.height = '0px';
+
+      sizeLabel = document.createElement('div');
+      sizeLabel.className = 'size-label';
+      sizeLabel.textContent = '0 x 0';
+      selection.appendChild(sizeLabel);
+
+      overlay.appendChild(selection);
+    });
+
+    overlay.addEventListener('mousemove', (e) => {
+      if (!isSelecting || !selection || isCapturing) return;
+
+      const curX = e.clientX;
+      const curY = e.clientY;
+      const left = Math.min(startX, curX);
+      const top = Math.min(startY, curY);
+      const width = Math.abs(curX - startX);
+      const height = Math.abs(curY - startY);
+
+      selection.style.left = left + 'px';
+      selection.style.top = top + 'px';
+      selection.style.width = width + 'px';
+      selection.style.height = height + 'px';
+      sizeLabel.textContent = `${Math.round(width)} x ${Math.round(height)}`;
+    });
+
+    overlay.addEventListener('mouseup', (e) => {
+      if (!isSelecting || !selection || isCapturing) return;
+      isSelecting = false;
+
+      const rect = selection.getBoundingClientRect();
+      if (rect.width < 20 || rect.height < 20) {
+        selection.remove();
+        selection = null;
+        return;
+      }
+
+      region = {
+        x: Math.round(rect.left),
+        y: Math.round(rect.top),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height)
+      };
+
+      showStartToolbar();
+    });
+
+    function showStartToolbar() {
+      if (toolbar) toolbar.remove();
+
+      toolbar = document.createElement('div');
+      toolbar.className = 'toolbar';
+
+      const startBtn = document.createElement('button');
+      startBtn.className = 'btn-start';
+      startBtn.textContent = i18n.t('开始捕获 (Enter)');
+      startBtn.onclick = startCapture;
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'btn-cancel';
+      cancelBtn.textContent = i18n.t('取消 (Esc)');
+      cancelBtn.onclick = cancelCapture;
+
+      toolbar.appendChild(startBtn);
+      toolbar.appendChild(cancelBtn);
+
+      const tbLeft = Math.min(parseInt(selection.style.left) + parseInt(selection.style.width) + 8, window.innerWidth - 320);
+      const tbTop = Math.min(parseInt(selection.style.top) + parseInt(selection.style.height) + 8, window.innerHeight - 50);
+      toolbar.style.left = tbLeft + 'px';
+      toolbar.style.top = tbTop + 'px';
+      toolbar.style.display = 'flex';
+
+      document.body.appendChild(toolbar);
+    }
+
+    function startCapture() {
+      if (!region) return;
+      isCapturing = true;
+      if (toolbar) toolbar.remove();
+      toolbar = null;
+      hint.style.display = 'none';
+      status.style.display = 'block';
+
+      // Keep the dark mask OUTSIDE the selection (via box-shadow),
+      // but make the selection interior fully transparent for clean captures.
+      // Remove overlay background tint (covers inside selection too), but keep it visible
+      // so that .selection and its box-shadow (the outside mask) still render.
+      overlay.style.background = 'transparent';
+      if (selection) {
+        selection.style.border = 'none';
+        selection.style.background = 'transparent';
+        // box-shadow stays to provide the dark mask outside the selection
+      }
+
+      ipcRenderer.send('long-screenshot-start', region);
+    }
+
+    function stopCapture() {
+      if (!isCapturing) return;
+      ipcRenderer.send('long-screenshot-stop');
+    }
+
+    function cancelCapture() {
+      ipcRenderer.send('long-screenshot-cancel');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (!isCapturing && region) {
+          startCapture();
+        } else if (isCapturing) {
+          stopCapture();
+        }
+      } else if (e.key === 'Escape') {
+        cancelCapture();
+      }
+    });
+  </script>
+</body>
+</html>

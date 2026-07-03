@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <script src="i18n.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: crosshair;
+      user-select: none;
+    }
+    #screenshot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #cursor-info {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transform: translate(16px, 16px);
+    }
+    #color-preview {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    #color-text {
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: monospace;
+      white-space: nowrap;
+    }
+    #hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <img id="screenshot" alt="screen">
+  <div id="cursor-info">
+    <div id="color-preview"></div>
+    <div id="color-text">#000000</div>
+  </div>
+  <div id="hint" data-i18n="移动鼠标查看颜色，点击选取，按 Esc 取消">移动鼠标查看颜色，点击选取，按 Esc 取消</div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    const screenshot = document.getElementById('screenshot');
+    const preview = document.getElementById('color-preview');
+    const colorText = document.getElementById('color-text');
+    const cursorInfo = document.getElementById('cursor-info');
+
+    let canvas = null;
+    let ctx = null;
+
+    ipcRenderer.on('set-screenshot', (event, dataUrl) => {
+      screenshot.src = dataUrl;
+      screenshot.onload = () => {
+        canvas = document.createElement('canvas');
+        canvas.width = screenshot.naturalWidth;
+        canvas.height = screenshot.naturalHeight;
+        ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(screenshot, 0, 0);
+      };
+    });
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0').toUpperCase()).join('');
+    }
+
+    function updateColor(x, y) {
+      if (!ctx) return;
+      const scaleX = canvas.width / window.innerWidth;
+      const scaleY = canvas.height / window.innerHeight;
+      const sx = Math.floor(x * scaleX);
+      const sy = Math.floor(y * scaleY);
+      try {
+        const pixel = ctx.getImageData(sx, sy, 1, 1).data;
+        const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+        preview.style.backgroundColor = hex;
+        colorText.textContent = hex;
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      cursorInfo.style.left = e.clientX + 'px';
+      cursorInfo.style.top = e.clientY + 'px';
+      updateColor(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!ctx) return;
+      const scaleX = canvas.width / window.innerWidth;
+      const scaleY = canvas.height / window.innerHeight;
+      const sx = Math.floor(e.clientX * scaleX);
+      const sy = Math.floor(e.clientY * scaleY);
+      try {
+        const pixel = ctx.getImageData(sx, sy, 1, 1).data;
+        const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+        ipcRenderer.send('color-picked', hex);
+      } catch (err) {
+        ipcRenderer.send('color-pick-cancel');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ipcRenderer.send('color-pick-cancel');
+      }
+    });
+  </script>
+</body>
+</html>

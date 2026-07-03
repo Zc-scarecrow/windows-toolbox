@@ -1,0 +1,81 @@
+{
+  "name": "toolbox",
+  "version": "0.1.0",
+  "description": "实用 Windows 桌面小工具箱",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "setup:python-runtime": "powershell -ExecutionPolicy Bypass -File ./python/setup-runtime.ps1"
+  },
+  "keywords": [
+    "electron",
+    "toolbox",
+    "screenshot",
+    "clipboard",
+    "password"
+  ],
+  "author": "Toolbox",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "dependencies": {
+    "@phosphor-icons/web": "^2.1.2",
+    "docx": "^9.7.1",
+    "electron-store": "^8.2.0",
+    "jsqr": "^1.4.0",
+    "mammoth": "^1.12.0",
+    "marked": "^12.0.2",
+    "onnxruntime-node": "^1.27.0",
+    "pdf-parse": "^2.4.5",
+    "ppu-paddle-ocr": "^6.0.0",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.35.2",
+    "tesseract.js": "^5.1.1",
+    "turndown": "^7.2.4",
+    "windows-media-ocr": "^0.0.10",
+    "xlsx": "^0.18.5"
+  },
+  "build": {
+    "appId": "com.toolbox.app",
+    "productName": "Toolbox",
+    "electronDist": "node_modules/electron/dist",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "app.js",
+      "i18n.js",
+      "screenshot-overlay.html",
+      "long-screenshot-overlay.html",
+      "color-picker-overlay.html",
+      "pages/**/*",
+      "assets/**/*",
+      "node_modules/**/*",
+      "python/**/*",
+      "!python/tmp",
+      "!python/test_output"
+    ],
+    "asarUnpack": [
+      "node_modules/tesseract.js/**/*",
+      "node_modules/windows-media-ocr/**/*",
+      "python/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

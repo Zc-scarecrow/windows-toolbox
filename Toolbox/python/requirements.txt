@@ -1,0 +1,9 @@
+# Python document conversion backend for Toolbox
+pdf2docx>=0.5.8
+PyMuPDF>=1.24.0
+python-docx>=1.1.0
+python-pptx>=1.0.0
+openpyxl>=3.1.0
+markdown>=3.6
+onnxruntime>=1.16.0
+rapidocr>=3.0.0

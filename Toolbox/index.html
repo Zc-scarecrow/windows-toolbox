@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toolbox</title>
+  <link rel="stylesheet" href="node_modules/@phosphor-icons/web/src/regular/style.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="i18n.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="title-bar">
+      <div class="title-bar-brand">
+        <i class="ph ph-toolbox title-bar-icon"></i>
+        <span class="title-bar-text">Toolbox</span>
+      </div>
+      <div class="title-bar-spacer"></div>
+      <button class="window-btn" id="win-lang-toggle" data-i18n-attr="title" data-i18n="切换语言" style="font-size:12px; font-weight:600; width:auto; padding:0 10px">中/En</button>
+      <div class="window-controls">
+        <button class="window-btn" id="win-minimize" data-i18n-attr="title" data-i18n="最小化">
+          <i class="ph ph-minus"></i>
+        </button>
+        <button class="window-btn" id="win-maximize" data-i18n-attr="title" data-i18n="最大化">
+          <i class="ph ph-square" id="win-maximize-icon"></i>
+        </button>
+        <button class="window-btn window-close" id="win-close" data-i18n-attr="title" data-i18n="关闭">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+    </header>
+    <div class="main-layout">
+      <aside class="sidebar">
+        <nav class="nav">
+          <div class="nav-group">
+            <span class="nav-label" data-i18n="核心工具">核心工具</span>
+            <a href="#" class="nav-item active" data-page="home">
+              <i class="ph ph-house nav-icon"></i> <span data-i18n="首页">首页</span>
+            </a>
+            <a href="#" class="nav-item" data-page="screenshot">
+              <i class="ph ph-camera nav-icon"></i> <span data-i18n="截图">截图</span>
+            </a>
+            <a href="#" class="nav-item" data-page="clipboard">
+              <i class="ph ph-clipboard-text nav-icon"></i> <span data-i18n="剪贴板">剪贴板</span>
+            </a>
+            <a href="#" class="nav-item" data-page="password">
+              <i class="ph ph-lock-key nav-icon"></i> <span data-i18n="密码箱">密码箱</span>
+            </a>
+          </div>
+          <div class="nav-group">
+            <span class="nav-label" data-i18n="扩展工具">扩展工具</span>
+            <a href="#" class="nav-item" data-page="memo">
+              <i class="ph ph-notebook nav-icon"></i> <span data-i18n="备忘录">备忘录</span>
+            </a>
+            <a href="#" class="nav-item" data-page="imagebatch">
+              <i class="ph ph-image nav-icon"></i> <span data-i18n="图片处理">图片处理</span>
+            </a>
+            <a href="#" class="nav-item" data-page="mediavault">
+              <i class="ph ph-folder-lock nav-icon"></i> <span data-i18n="加密相册">加密相册</span>
+            </a>
+            <a href="#" class="nav-item" data-page="docconvert">
+              <i class="ph ph-file-text nav-icon"></i> <span data-i18n="文档转换">文档转换</span>
+            </a>
+            <a href="#" class="nav-item" data-page="pdftoolkit">
+              <i class="ph ph-file-pdf nav-icon"></i> <span data-i18n="PDF 工具箱">PDF 工具箱</span>
+            </a>
+            <a href="#" class="nav-item" data-page="color">
+              <i class="ph ph-palette nav-icon"></i> <span data-i18n="颜色工具">颜色工具</span>
+            </a>
+            <a href="#" class="nav-item" data-page="qrcode">
+              <i class="ph ph-qr-code nav-icon"></i> <span data-i18n="二维码">二维码</span>
+            </a>
+            <a href="#" class="nav-item" data-page="encrypt">
+              <i class="ph ph-shield nav-icon"></i> <span data-i18n="加密传输">加密传输</span>
+            </a>
+          </div>
+          <div class="nav-group">
+            <span class="nav-label" data-i18n="开发专用">开发专用</span>
+            <a href="#" class="nav-item" data-page="hash">
+              <i class="ph ph-hash nav-icon"></i> <span data-i18n="哈希计算">哈希计算</span>
+            </a>
+            <a href="#" class="nav-item" data-page="devtools">
+              <i class="ph ph-code nav-icon"></i> <span data-i18n="开发者工具">开发者工具</span>
+            </a>
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="#" class="nav-item" data-page="settings">
+            <i class="ph ph-gear nav-icon"></i> <span data-i18n="设置">设置</span>
+          </a>
+        </div>
+      </aside>
+      <main class="content" id="content">
+        <!-- 动态加载页面内容 -->
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Generated Python runtime and test artifacts
+runtime/
+tmp/
+test_output/
+*.pyc
+__pycache__/
