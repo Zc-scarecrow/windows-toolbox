@@ -1,78 +1,78 @@
 # Toolbox
 
-一个基于 Electron 的 Windows 桌面效率工具箱，集成截图、剪贴板管理、密码箱、OCR、PDF 工具等常用功能。
+A Windows desktop productivity toolbox built with Electron, featuring screenshot, clipboard management, password vault, OCR, PDF tools, and more.
 
-## 技术栈
+## Tech Stack
 
-- **Electron** — 跨平台桌面应用框架
-- **Node.js** — 主进程与渲染进程脚本
-- **嵌入式 Python 运行时** — OCR、PDF/Office 文档转换等后端能力
-- **Phosphor Icons** — 图标库
+- **Electron** — Cross-platform desktop application framework
+- **Node.js** — Main process and renderer process scripts
+- **Embeddable Python Runtime** — Backend capabilities such as OCR and PDF/Office document conversion
+- **Phosphor Icons** — Icon library
 
-## 主要功能
+## Features
 
-- 区域截图 / 长截图 / 取色器
-- 剪贴板历史监听与管理
-- 密码箱（本地加密存储）
-- OCR 文字识别
-- PDF 工具箱（转换、处理）
-- Office 文档转换
-- 二维码生成与识别
-- 哈希计算 / 图片压缩等实用小工具
+- Region screenshot / long screenshot / color picker
+- Clipboard history monitoring and management
+- Password vault (locally encrypted storage)
+- OCR text recognition
+- PDF toolbox (conversion and processing)
+- Office document conversion
+- QR code generation and recognition
+- Hash calculation / image compression and other practical utilities
 
-## 目录结构
+## Directory Structure
 
 ```
 Toolbox/
-├── assets/               # 应用图标等资源
-├── pages/                # 功能页面
-├── python/               # Python 后端脚本
-│   ├── converters/       # 文档转换器
-│   ├── runtime/          # 嵌入式 Python 运行时（不提交）
-│   └── convert.py        # 转换入口
-├── main.js               # Electron 主进程
-├── preload.js            # 预加载脚本
-├── app.js                # 渲染进程入口
-├── i18n.js               # 国际化
-├── index.html            # 主窗口页面
+├── assets/               # App icons and other assets
+├── pages/                # Feature pages
+├── python/               # Python backend scripts
+│   ├── converters/       # Document converters
+│   ├── runtime/          # Embeddable Python runtime (not committed)
+│   └── convert.py        # Conversion entry point
+├── main.js               # Electron main process
+├── preload.js            # Preload script
+├── app.js                # Renderer process entry
+├── i18n.js               # Internationalization
+├── index.html            # Main window page
 └── package.json
 ```
 
-## 环境准备
+## Environment Setup
 
-1. 安装 Node.js（建议 18+）
-2. 安装项目依赖：
+1. Install Node.js (18+ recommended)
+2. Install project dependencies:
 
 ```powershell
 cd Toolbox
 npm install
 ```
 
-3. 初始化嵌入式 Python 运行时（用于 OCR、PDF 等功能）：
+3. Initialize the embeddable Python runtime (required for OCR, PDF, and other features):
 
 ```powershell
 npm run setup:python-runtime
 ```
 
-## 开发运行
+## Development
 
 ```powershell
 npm run dev
 ```
 
-## 打包构建
+## Build
 
 ```powershell
-# Windows 安装包
+# Windows installer
 npm run build:win
 ```
 
-构建产物输出到 `dist/` 目录。
+Build artifacts are output to the `dist/` directory.
 
-## 注意事项
+## Notes
 
-- `python/runtime/`、`node_modules/`、`dist/` 等目录已加入 `.gitignore`，不会进入版本控制。
-- OCR 模型文件（`*.traineddata`）随仓库提供，无需额外下载。
+- `python/runtime/`, `node_modules/`, `dist/`, and other directories are excluded via `.gitignore` and will not be tracked.
+- OCR model files (`*.traineddata`) are included in the repository, so no additional download is required.
 
 ## License
 
