@@ -20,6 +20,13 @@ A Windows desktop productivity toolbox built with Electron, featuring screenshot
 - QR code generation and recognition
 - Hash calculation / image compression and other practical utilities
 
+## Screenshots
+
+<p align="center">
+  <img src="Toolbox/assets/home.png" alt="Home" width="700">
+  <br><em>Home</em>
+</p>
+
 ## Directory Structure
 
 ```

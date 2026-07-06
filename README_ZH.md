@@ -20,6 +20,13 @@
 - 二维码生成与识别
 - 哈希计算 / 图片压缩等实用小工具
 
+## 界面截图
+
+<p align="center">
+  <img src="Toolbox/assets/home-zh.png" alt="首页" width="700">
+  <br><em>首页</em>
+</p>
+
 ## 目录结构
 
 ```
